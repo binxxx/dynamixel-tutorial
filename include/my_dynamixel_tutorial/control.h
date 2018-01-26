@@ -26,6 +26,9 @@ private:
     double _L1;
     double _L2;
 
+    double last;
+    double current;
+
 
     ros::Publisher _pose_pub;
 

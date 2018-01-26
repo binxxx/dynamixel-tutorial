@@ -1,0 +1,12 @@
+<?xml version = "1.0"?>
+
+<launch>
+    <include file = "$(find my_dynamixel_tutorial)/launch/controller_manager.launch">
+    </include>
+
+    <include file = "$(find my_dynamixel_tutorial)/launch/start_tilt_controller.launch">
+    </include>
+
+    <include file = "$(find my_dynamixel_tutorial)/launch/servo_control.launch">
+    </include>
+</launch>

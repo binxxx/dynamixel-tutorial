@@ -1,4 +1,7 @@
 <launch>
+    <!-- <include file = "$(find my_dynamixel_tutorial)/launch/servo_control.launch">
+    </include> -->
+
     <!-- Start tilt joint controller -->
     <rosparam file="$(find my_dynamixel_tutorial)/tilt.yaml" command="load"/>
     <node name="tilt_controller_spawner" pkg="dynamixel_controllers" type="controller_spawner.py"
@@ -6,4 +9,5 @@
                 --port pan_tilt_port
                 tilt_controller"
           output="screen"/>
+
 </launch>

@@ -2,8 +2,8 @@
 
 <launch>
     <node name = "servo_control" pkg = "my_dynamixel_tutorial" type = "servo_control_node" output = "screen">
-        <param name = "servo1_angle" value = "0.0" />
-        <param name = "servo2_angle" value = "0.0" />
+        <param name = "servo1_angle" value = "1.5" />
+        <param name = "servo2_angle" value = "1.5" />
         <param name = "L1" value = "0.22360679" />
         <param name = "L2" value = "0.471699" />
     </node>
