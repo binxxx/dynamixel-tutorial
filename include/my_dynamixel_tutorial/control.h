@@ -30,7 +30,8 @@ private:
     double current;
 
 
-    ros::Publisher _pose_pub;
+    ros::Publisher _pose_pub_1;
+    ros::Publisher _pose_pub_2;
 
     void iteration(const ros::TimerEvent& e);
 };

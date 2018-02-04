@@ -21,7 +21,8 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     
 
     // set up publisher
-    _pose_pub = n.advertise<std_msgs::Float64>("/tilt_controller/command", 1);
+    _pose_pub_1 = n.advertise<std_msgs::Float64>("/joint1_controller/command", 1);
+    _pose_pub_2 = n.advertise<std_msgs::Float64>("/joint2_controller/command", 1);
 }
 
 void ServoControl::run(double frequency)
@@ -38,17 +39,21 @@ void ServoControl::iteration(const ros::TimerEvent& e)
 
 
     // give const value to rotation angle
-    std_msgs::Float64 msg;
+    std_msgs::Float64 msg1;
+    std_msgs::Float64 msg2;
 
     // switch the rotation angle based on time interval
     current = ros::Time::now().toSec();
     if (abs(current - last) > 2.0)
     {
         _q1 = -_q1;
+        _q2 = -_q2;
         last = current;
         current = ros::Time::now().toSec();
     }
 
-    msg.data = _q1;
-    _pose_pub.publish(msg);
+    msg1.data = _q1;
+    msg2.data = _q2;
+    _pose_pub_1.publish(msg1);
+    _pose_pub_2.publish(msg2);
 }
