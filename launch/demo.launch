@@ -1,6 +1,13 @@
 <?xml version = "1.0"?>
 
 <launch>
+    <!-- <arg name = "servo1_angle" default = "1.0" /> -->
+    <!-- <arg name = "servo2_angle" default = "-1.0" /> -->
+
+    <!-- set to default configuration -->
+    <arg name = "servo1_angle" default = "0.0" />
+    <arg name = "servo2_angle" default = "0.0" />
+
     <include file = "$(find my_dynamixel_tutorial)/launch/controller_manager.launch">
     </include>
 
@@ -8,5 +15,7 @@
     </include>
 
     <include file = "$(find my_dynamixel_tutorial)/launch/servo_control.launch">
+        <arg name = "servo1_angle" value = "$(arg servo1_angle)" />
+        <arg name = "servo2_angle" value = "$(arg servo2_angle)" />
     </include>
 </launch>

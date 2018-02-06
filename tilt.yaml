@@ -19,7 +19,7 @@ joint2_controller:
     joint_name: tilt2_joint
     joint_name: 1.17
     motor:
-        id: 3
+        id: 2
         init: 512
         min: 0
         max: 1023
