@@ -1,12 +1,12 @@
 <?xml version = "1.0"?>
 
 <launch>
-    <!-- <arg name = "servo1_angle" default = "1.0" /> -->
-    <!-- <arg name = "servo2_angle" default = "-1.0" /> -->
+    <arg name = "servo1_angle" default = "0.2" />
+    <arg name = "servo2_angle" default = "-0.2" />
 
     <!-- set to default configuration -->
-    <arg name = "servo1_angle" default = "0.0" />
-    <arg name = "servo2_angle" default = "0.0" />
+    <!-- <arg name = "servo1_angle" default = "0.0" /> -->
+    <!-- <arg name = "servo2_angle" default = "0.0" /> -->
 
     <include file = "$(find my_dynamixel_tutorial)/launch/controller_manager.launch">
     </include>
