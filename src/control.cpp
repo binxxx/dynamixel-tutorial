@@ -9,10 +9,16 @@
 
 ServoControl::ServoControl(const ros::NodeHandle &nh)
 {
-    nh.param("servo1_angle", _q1, 1.5);
-    nh.param("servo2_angle", _q2, 1.5);
-    nh.param("L1", _L1, 0.22360679);
-    nh.param("L2", _L2, 0.471699);  // unit is m
+    nh.param("servo1_angle", _q1, 0.0);
+    nh.param("servo2_angle", _q2, 0.0);
+    nh.param("L_MIN", _L_MIN, 0.5);
+    nh.param("L_MAX", _L_MAX, 1.5);
+    nh.param("l0", _l0, 0.1);
+    nh.param("l1", _l1, 0.22360679);
+    nh.param("l2", _l2, 0.471699);  // unit is m
+    // nh.param("range", _range, 0.0);
+
+    _range = 0.0;    // initialize _range as 0.0
 
     last = 0.0;
     current = 0.0;
@@ -37,7 +43,31 @@ void ServoControl::run(double frequency)
 
 void ServoControl::iteration(const ros::TimerEvent& e)
 {
+    double alpha1 = 0.0, alpha2 = 0.0, alpha = 0.0;
+    double l = 0.0;
     // do some calculation to generate rotation angle of servos
+    // negelect when _range is smaller than the default distance
+    if (_range > _L_MIN && _range < _L_MAX)
+    {
+        // direct distance
+        alpha1 = atan2(_range, _l0);
+        l = sqrt(_range*_range+_l0*_l0);
+        alpha2 = acos((l*l+_l1*_l1-_l2*_l2)/(2*l*_l1));
+        alpha = PI - alpha1 - alpha2;
+        _q1 = alpha;
+        _q2 = -alpha;
+    }
+
+    // set saturation on rotational angles
+    if (_q1 > 2.0)
+        _q1 = 2.0;
+    if (_q1 < -2.0)
+        _q1 = -2.0;
+    
+    if (_q2 > 2.0)
+        _q2 = 2.0;
+    if (_q2 < -2.0)
+        _q2 = -2.0;
 
 
     // give const value to rotation angle
@@ -45,6 +75,7 @@ void ServoControl::iteration(const ros::TimerEvent& e)
     std_msgs::Float64 msg1;
     std_msgs::Float64 msg2;
 
+    /*
     // switch the rotation angle based on time interval
     current = ros::Time::now().toSec();
     if (abs(current - last) > 2.0)
@@ -54,6 +85,7 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         last = current;
         current = ros::Time::now().toSec();
     }
+    */
 
     msg1.data = _q1;
     msg2.data = _q2;
@@ -64,4 +96,9 @@ void ServoControl::iteration(const ros::TimerEvent& e)
 void ServoControl::rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
     ROS_INFO("Reading range finder message: [%f]", msg->ranges[0]);
+
+    // set the range finder reading _range
+    // if two readings are larger than 0.1, then reset the _range
+    if (abs(_range - msg->ranges[0]) > 0.1)
+        _range = msg->ranges[0];
 }

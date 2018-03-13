@@ -12,6 +12,10 @@
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/LaserScan.h>
 
+#include <math.h>
+
+#define PI 3.14159265
+
 class ServoControl
 {
 public:
@@ -24,8 +28,10 @@ public:
 private:
     double _q1; // servo 1 rotation angle
     double _q2; // servo 2 rotation angle
-    double _L1;
-    double _L2;
+    double _L_MIN, _L_MAX;
+    double _l0, _l1, _l2;
+
+    float _range;
 
     double last;
     double current;
