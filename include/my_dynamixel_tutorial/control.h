@@ -10,6 +10,7 @@
 
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
+#include <sensor_msgs/LaserScan.h>
 
 class ServoControl
 {
@@ -29,11 +30,13 @@ private:
     double last;
     double current;
 
+    ros::Subscriber _range_sub;
 
     ros::Publisher _pose_pub_1;
     ros::Publisher _pose_pub_2;
 
     void iteration(const ros::TimerEvent& e);
+    void rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 };
 
 #endif

@@ -2,7 +2,7 @@
    Date: Jan. 22, 2018
 
    control.cpp
-   Description: ServoControl Class for controlling 2 Dynamixel servos
+   Description: ServoControl Class for controlling 2 Dynamixel servos with range finder sensor readings
  */
 
 #include <my_dynamixel_tutorial/control.h>
@@ -19,6 +19,8 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
 
     ros::NodeHandle n;
     
+    // set up listener
+    _range_sub = n.subscribe("range", 1000, &ServoControl::rangeCallback, this);
 
     // set up publisher
     _pose_pub_1 = n.advertise<std_msgs::Float64>("/joint1_controller/command", 1);
@@ -39,6 +41,7 @@ void ServoControl::iteration(const ros::TimerEvent& e)
 
 
     // give const value to rotation angle
+    // in radians
     std_msgs::Float64 msg1;
     std_msgs::Float64 msg2;
 
@@ -56,4 +59,9 @@ void ServoControl::iteration(const ros::TimerEvent& e)
     msg2.data = _q2;
     _pose_pub_1.publish(msg1);
     _pose_pub_2.publish(msg2);
+}
+
+void ServoControl::rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
+{
+    ROS_INFO("Reading range finder message: [%f]", msg->ranges[0]);
 }
