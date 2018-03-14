@@ -32,6 +32,7 @@ private:
     double _l0, _l1, _l2;
 
     float _range;
+    double _alpha;
 
     double last;
     double current;

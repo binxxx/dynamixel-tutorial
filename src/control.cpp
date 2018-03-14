@@ -19,6 +19,7 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     // nh.param("range", _range, 0.0);
 
     _range = 0.0;    // initialize _range as 0.0
+    _alpha = 0.5;
 
     last = 0.0;
     current = 0.0;
@@ -26,6 +27,7 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     ros::NodeHandle n;
     
     // set up listener
+    // rostopic: "/sf30/range"
     _range_sub = n.subscribe("range", 1000, &ServoControl::rangeCallback, this);
 
     // set up publisher
@@ -54,8 +56,10 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         l = sqrt(_range*_range+_l0*_l0);
         alpha2 = acos((l*l+_l1*_l1-_l2*_l2)/(2*l*_l1));
         alpha = PI - alpha1 - alpha2;
-        _q1 = alpha;
-        _q2 = -alpha;
+        _q1 = alpha - _alpha;
+        _q2 = -(alpha - _alpha);
+        
+        ROS_INFO("[ROS_INFO] Servo 1: %lf\tServo 2: %lf\n", _q1, _q2);
     }
 
     // set saturation on rotational angles
@@ -95,7 +99,7 @@ void ServoControl::iteration(const ros::TimerEvent& e)
 
 void ServoControl::rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    ROS_INFO("Reading range finder message: [%f]", msg->ranges[0]);
+    ROS_INFO("[ROS_INFO] Reading range finder message: [%f]", msg->ranges[0]);
 
     // set the range finder reading _range
     // if two readings are larger than 0.1, then reset the _range
