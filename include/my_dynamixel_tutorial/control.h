@@ -11,6 +11,7 @@
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/LaserScan.h>
+#include <std_srvs/Empty.h>
 
 #include <math.h>
 
@@ -34,6 +35,8 @@ private:
     float _range;
     double _alpha;
 
+    bool _state;
+
     double last;
     double current;
 
@@ -42,8 +45,14 @@ private:
     ros::Publisher _pose_pub_1;
     ros::Publisher _pose_pub_2;
 
+    // ros service
+    ros::ServiceServer _service_start_manipulator;
+    ros::ServiceServer _service_end_manipulator;
+
     void iteration(const ros::TimerEvent& e);
     void rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
+    bool startManipulator(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
+    bool endManipulator(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
 };
 
 #endif
