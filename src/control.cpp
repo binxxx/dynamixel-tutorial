@@ -18,13 +18,17 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     nh.param("l2", _l2, 0.471699);  // unit is m
     // nh.param("range", _range, 0.0);
 
-    _range = 0.0;    // initialize _range as 0.0
-    _alpha = 0.5;
+    _range = 0.0;   // initialize _range as 0.0
+    _alpha = 0.5;   // default angle offset
 
     _state = false;
 
     last = 0.0;
     current = 0.0;
+
+    // set actuator saturation
+    _saturation_max = 2.0;
+    _saturation_min = -2.0;
 
     ros::NodeHandle n;
     
@@ -73,15 +77,15 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         }
 
         // set saturation on rotational angles
-        if (_q1 > 2.0)
-            _q1 = 2.0;
-        if (_q1 < -2.0)
-            _q1 = -2.0;
+        if (_q1 > _saturation_max)
+            _q1 = _saturation_max;
+        if (_q1 < _saturation_min)
+            _q1 = _saturation_min;
         
-        if (_q2 > 2.0)
-            _q2 = 2.0;
-        if (_q2 < -2.0)
-            _q2 = -2.0;
+        if (_q2 > _saturation_max)
+            _q2 = _saturation_max;
+        if (_q2 < _saturation_min)
+            _q2 = _saturation_min;
     }
     else
     {
@@ -134,7 +138,7 @@ bool ServoControl::startManipulator(std_srvs::Empty::Request& req, std_srvs::Emp
 bool ServoControl::endManipulator(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
 {
     ROS_INFO("[ROS_INFO] End manipulator control!!!");
-    
+
     _state = false;
     return true;
 }

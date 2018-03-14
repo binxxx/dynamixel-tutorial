@@ -40,6 +40,9 @@ private:
     double last;
     double current;
 
+    double _saturation_max;
+    double _saturation_min;
+
     ros::Subscriber _range_sub;
 
     ros::Publisher _pose_pub_1;
