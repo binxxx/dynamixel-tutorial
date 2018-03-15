@@ -19,7 +19,7 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     // nh.param("range", _range, 0.0);
 
     _range = 0.0;   // initialize _range as 0.0
-    _alpha = 0.5;   // default angle offset
+    _alpha = atan2(1,2);   // default angle offset
 
     _state = false;
 
