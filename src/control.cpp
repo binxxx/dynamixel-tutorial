@@ -12,14 +12,14 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     nh.param("servo1_angle", _q1, 0.0);
     nh.param("servo2_angle", _q2, 0.0);
     nh.param("L_MIN", _L_MIN, 0.5);
-    nh.param("L_MAX", _L_MAX, 1.5);
-    nh.param("l0", _l0, 0.1);
+    nh.param("L_MAX", _L_MAX, 0.695);
+    nh.param("l0", _l0, 0.05);
     nh.param("l1", _l1, 0.22360679);
     nh.param("l2", _l2, 0.471699);  // unit is m
     // nh.param("range", _range, 0.0);
 
     _range = 0.0;   // initialize _range as 0.0
-    _alpha = atan2(1,2);   // default angle offset
+    _alpha = atan2(1.,2.);   // default angle offset
 
     _state = false;
 
@@ -34,7 +34,7 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     
     // set up listener
     // rostopic: "/sf30/range"
-    _range_sub = n.subscribe("range", 1000, &ServoControl::rangeCallback, this);
+    _range_sub = n.subscribe("/sf30/range", 1000, &ServoControl::rangeCallback, this);
 
     // set up publisher
     _pose_pub_1 = n.advertise<std_msgs::Float64>("/joint1_controller/command", 1);
@@ -59,12 +59,15 @@ void ServoControl::iteration(const ros::TimerEvent& e)
 {
     if (_state)
     {
+        ROS_INFO("inverse kinematics!!!");
+        ROS_INFO("range is %f", _range);
         double alpha1 = 0.0, alpha2 = 0.0, alpha = 0.0;
         double l = 0.0;
         // do some calculation to generate rotation angle of servos
         // negelect when _range is smaller than the default distance
         if (_range > _L_MIN && _range < _L_MAX)
         {
+            // ROS_INFO("range is %f", _range);
             // direct distance
             alpha1 = atan2(_range, _l0);
             l = sqrt(_range*_range+_l0*_l0);
@@ -90,7 +93,7 @@ void ServoControl::iteration(const ros::TimerEvent& e)
     else
     {
         // end manipulator control
-        // set rotational angle to zero
+        // set rotational angle to zero (or negative?)
         _q1 = _q2 = 0.0;
     }
 
@@ -119,12 +122,15 @@ void ServoControl::iteration(const ros::TimerEvent& e)
 
 void ServoControl::rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    ROS_INFO("[ROS_INFO] Reading range finder message: [%f]", msg->ranges[0]);
+    // ROS_INFO("[ROS_INFO] Reading range finder message: [%f]", msg->ranges[0]);
 
     // set the range finder reading _range
     // if two readings are larger than 0.1, then reset the _range
-    if (abs(_range - msg->ranges[0]) > 0.1)
+    if (fabs(_range - msg->ranges[0]) > 0.01)
+    {
         _range = msg->ranges[0];
+    }
+    // ROS_INFO("range is %f", _range);
 }
 
 bool ServoControl::startManipulator(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
