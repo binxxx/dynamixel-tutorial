@@ -27,8 +27,8 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     current = 0.0;
 
     // set actuator saturation
-    _saturation_max = 2.0;
-    _saturation_min = -2.0;
+    _saturation_max = 1.0471975511965976; // (60 degrees)
+    _saturation_min = -1.0471975511965976;
 
     ros::NodeHandle n;
     
@@ -65,7 +65,7 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         double l = 0.0;
         // do some calculation to generate rotation angle of servos
         // negelect when _range is smaller than the default distance
-        if (_range > _L_MIN && _range < _L_MAX)
+        if (_range >= _L_MIN && _range <= _L_MAX)
         {
             // ROS_INFO("range is %f", _range);
             // direct distance
