@@ -12,7 +12,7 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     nh.param("servo1_angle", _q1, 0.0);
     nh.param("servo2_angle", _q2, 0.0);
     nh.param("L_MIN", _L_MIN, 0.5);
-    nh.param("L_MAX", _L_MAX, 0.695);
+    nh.param("L_MAX", _L_MAX, 0.69);
     nh.param("l0", _l0, 0.05);
     nh.param("l1", _l1, 0.22360679);
     nh.param("l2", _l2, 0.471699);  // unit is m
@@ -27,8 +27,8 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     current = 0.0;
 
     // set actuator saturation
-    _saturation_max = 1.0471975511965976; // (60 degrees)
-    _saturation_min = -1.0471975511965976;
+    _saturation_max = 0.90; // ( ~ 51 degrees)
+    _saturation_min = -0.90;
 
     ros::NodeHandle n;
     
@@ -63,41 +63,45 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         ROS_INFO("range is %f", _range);
         double alpha1 = 0.0, alpha2 = 0.0, alpha = 0.0;
         double l = 0.0;
-        // do some calculation to generate rotation angle of servos
+        double range = this->_range;
+        // do calculation to generate rotation angle of servos
         // negelect when _range is smaller than the default distance
-        if (_range >= _L_MIN && _range <= _L_MAX)
+        if (range >= _L_MIN && range <= _L_MAX)
         {
             // ROS_INFO("range is %f", _range);
             // direct distance
-            alpha1 = atan2(_range, _l0);
-            l = sqrt(_range*_range+_l0*_l0);
+            alpha1 = atan2(range, _l0);
+            l = sqrt(range*range+_l0*_l0);
             alpha2 = acos((l*l+_l1*_l1-_l2*_l2)/(2*l*_l1));
             alpha = PI - alpha1 - alpha2;
-            _q1 = alpha - _alpha;
-            _q2 = -(alpha - _alpha);
+            this->_q1 = alpha - _alpha;
+            this->_q2 = -(alpha - _alpha);
             
             ROS_INFO("[ROS_INFO] Servo 1: %lf\tServo 2: %lf\n", _q1, _q2);
-        }
 
-        // set saturation on rotational angles
-        if (_q1 > _saturation_max)
-            _q1 = _saturation_max;
-        if (_q1 < _saturation_min)
-            _q1 = _saturation_min;
-        
-        if (_q2 > _saturation_max)
-            _q2 = _saturation_max;
-        if (_q2 < _saturation_min)
-            _q2 = _saturation_min;
+            // set saturation on rotational angles
+            if (this->_q1 > _saturation_max)
+                this->_q1 = _saturation_max;
+            if (this->_q1 < _saturation_min)
+                this->_q1 = _saturation_min;
+            
+            if (this->_q2 > _saturation_max)
+                this->_q2 = _saturation_max;
+            if (this->_q2 < _saturation_min)
+                this->_q2 = _saturation_min;
+        }
+        else
+        {
+            printf("[ROS_INFO] distance out of range, current range is %f\n", range);
+        }
     }
     else
     {
         // end manipulator control
         // set rotational angle to zero (or negative?)
-        _q1 = _q2 = 0.0;
+        this->_q1 = this->_q2 = 0.0;
     }
 
-    // give const value to rotation angle
     // in radians
     std_msgs::Float64 msg1;
     std_msgs::Float64 msg2;
@@ -114,8 +118,8 @@ void ServoControl::iteration(const ros::TimerEvent& e)
     }
     */
 
-    msg1.data = _q1;
-    msg2.data = _q2;
+    msg1.data = this->_q1;
+    msg2.data = this->_q2;
     _pose_pub_1.publish(msg1);
     _pose_pub_2.publish(msg2);
 }
@@ -126,9 +130,9 @@ void ServoControl::rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
     // set the range finder reading _range
     // if two readings are larger than 0.1, then reset the _range
-    if (fabs(_range - msg->ranges[0]) > 0.01)
+    if (fabs(this->_range - msg->ranges[0]) > 0.01)
     {
-        _range = msg->ranges[0];
+        this->_range = msg->ranges[0];
     }
     // ROS_INFO("range is %f", _range);
 }
@@ -137,7 +141,7 @@ bool ServoControl::startManipulator(std_srvs::Empty::Request& req, std_srvs::Emp
 {
     ROS_INFO("[ROS_INFO] Start manipulator control!!!");
 
-    _state = true;
+    this->_state = true;
     return true;
 }
 
@@ -145,6 +149,6 @@ bool ServoControl::endManipulator(std_srvs::Empty::Request& req, std_srvs::Empty
 {
     ROS_INFO("[ROS_INFO] End manipulator control!!!");
 
-    _state = false;
+    this->_state = false;
     return true;
 }

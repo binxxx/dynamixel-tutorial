@@ -8,7 +8,7 @@
         <param name = "servo1_angle" value = "$(arg servo1_angle)" />
         <param name = "servo2_angle" value = "$(arg servo2_angle)" />
         <param name = "L_MIN" value = "0.5" />
-        <param name = "L_MAX" value = "1.5" />
+        <param name = "L_MAX" value = "0.69" />
         <param name = "l0" value = "0.05" />
         <param name = "l1" value = "0.22360679" />
         <param name = "l2" value = "0.471699" />
