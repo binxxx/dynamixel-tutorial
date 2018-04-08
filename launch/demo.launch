@@ -1,8 +1,8 @@
 <?xml version = "1.0"?>
 
 <launch>
-    <arg name = "servo1_angle" default = "-0.2" />
-    <arg name = "servo2_angle" default = "0.2" />
+    <arg name = "servo1_angle" default = "0.5" />
+    <arg name = "servo2_angle" default = "-0.5" />
 
     <!-- set to default configuration -->
     <!-- <arg name = "servo1_angle" default = "0.0" /> -->

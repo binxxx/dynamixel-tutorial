@@ -9,8 +9,8 @@
 
 ServoControl::ServoControl(const ros::NodeHandle &nh)
 {
-    nh.param("servo1_angle", this->_q1_default, 0.0);
-    nh.param("servo2_angle", this->_q2_default, 0.0);
+    nh.param("servo1_angle", this->_q1_default, 0.5);
+    nh.param("servo2_angle", this->_q2_default, - 0.5);
     nh.param("L_MIN", this->_L_MIN, 0.5);
     nh.param("L_MAX", this->_L_MAX, 0.69);
     nh.param("l0", this->_l0, 0.05);
@@ -18,10 +18,10 @@ ServoControl::ServoControl(const ros::NodeHandle &nh)
     nh.param("l2", this->_l2, 0.471699);  // unit is m
     // nh.param("range", _range, 0.0);
 
-    this->_q1 = 0.0;
-    this->_q2 = 0.0;
+    this->_q1 = 0.5;
+    this->_q2 = - 0.5;
 
-    this->_offset = 0.05;
+    this->_offset = 0.02;
     this->_range = 0.0;   // initialize _range as 0.0
     this->_alpha = atan2(1.,2.);   // default angle offset
 
@@ -124,6 +124,8 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         current = ros::Time::now().toSec();
     }
     */
+
+    // ROS_INFO("servo1 angle: %f, servo2 angle: %f", this->_q1, this->_q2);
 
     msg1.data = this->_q1;
     msg2.data = this->_q2;
