@@ -9,26 +9,30 @@
 
 ServoControl::ServoControl(const ros::NodeHandle &nh)
 {
-    nh.param("servo1_angle", _q1, 0.0);
-    nh.param("servo2_angle", _q2, 0.0);
-    nh.param("L_MIN", _L_MIN, 0.5);
-    nh.param("L_MAX", _L_MAX, 0.69);
-    nh.param("l0", _l0, 0.05);
-    nh.param("l1", _l1, 0.22360679);
-    nh.param("l2", _l2, 0.471699);  // unit is m
+    nh.param("servo1_angle", this->_q1_default, 0.0);
+    nh.param("servo2_angle", this->_q2_default, 0.0);
+    nh.param("L_MIN", this->_L_MIN, 0.5);
+    nh.param("L_MAX", this->_L_MAX, 0.69);
+    nh.param("l0", this->_l0, 0.05);
+    nh.param("l1", this->_l1, 0.22360679);
+    nh.param("l2", this->_l2, 0.471699);  // unit is m
     // nh.param("range", _range, 0.0);
 
-    _range = 0.0;   // initialize _range as 0.0
-    _alpha = atan2(1.,2.);   // default angle offset
+    this->_q1 = 0.0;
+    this->_q2 = 0.0;
 
-    _state = false;
+    this->_offset = 0.05;
+    this->_range = 0.0;   // initialize _range as 0.0
+    this->_alpha = atan2(1.,2.);   // default angle offset
+
+    this->_state = false;
 
     last = 0.0;
     current = 0.0;
 
     // set actuator saturation
-    _saturation_max = 0.90; // ( ~ 51 degrees)
-    _saturation_min = -0.90;
+    this->_saturation_max = 0.90; // ( ~ 51 degrees)
+    this->_saturation_min = -0.90;
 
     ros::NodeHandle n;
     
@@ -57,7 +61,7 @@ void ServoControl::run(double frequency)
 
 void ServoControl::iteration(const ros::TimerEvent& e)
 {
-    if (_state)
+    if (this->_state)
     {
         ROS_INFO("inverse kinematics!!!");
         ROS_INFO("range is %f", _range);
@@ -74,8 +78,8 @@ void ServoControl::iteration(const ros::TimerEvent& e)
             l = sqrt(range*range+_l0*_l0);
             alpha2 = acos((l*l+_l1*_l1-_l2*_l2)/(2*l*_l1));
             alpha = PI - alpha1 - alpha2;
-            this->_q1 = alpha - _alpha;
-            this->_q2 = -(alpha - _alpha);
+            this->_q1 = -(alpha - _alpha);
+            this->_q2 = alpha - _alpha;
             
             ROS_INFO("[ROS_INFO] Servo 1: %lf\tServo 2: %lf\n", _q1, _q2);
 
@@ -92,14 +96,17 @@ void ServoControl::iteration(const ros::TimerEvent& e)
         }
         else
         {
-            printf("[ROS_INFO] distance out of range, current range is %f\n", range);
+            ROS_INFO("[ROS_INFO] distance out of range, current range is %f\n", range);
         }
     }
     else
     {
         // end manipulator control
         // set rotational angle to zero (or negative?)
-        this->_q1 = this->_q2 = 0.0;
+        // ROS_INFO("[ROS_INFO] reset manipulator!!!");
+        // this->_q1 = this->_q2 = 0.0;
+        this->_q1 = this->_q1_default;
+        this->_q2 = this->_q2_default;
     }
 
     // in radians
@@ -132,7 +139,7 @@ void ServoControl::rangeCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     // if two readings are larger than 0.1, then reset the _range
     if (fabs(this->_range - msg->ranges[0]) > 0.01)
     {
-        this->_range = msg->ranges[0];
+        this->_range = msg->ranges[0] - this->_offset;
     }
     // ROS_INFO("range is %f", _range);
 }

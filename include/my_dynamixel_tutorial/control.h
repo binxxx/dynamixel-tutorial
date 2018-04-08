@@ -31,6 +31,10 @@ private:
     double _q2; // servo 2 rotation angle
     double _L_MIN, _L_MAX;
     double _l0, _l1, _l2;
+    double _q1_default;
+    double _q2_default;
+
+    float _offset; // add offset due to mechanism
 
     float _range;
     double _alpha;
